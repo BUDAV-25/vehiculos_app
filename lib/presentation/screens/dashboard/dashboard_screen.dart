@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
+import '/core/utils/image_helper.dart';
+//import '../../widgets/custom_app_bar.dart';
 import '/providers/auth_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -20,7 +22,7 @@ class DashboardScreen extends StatelessWidget {
             onPressed: () async {
               await context.read<AuthProvider>().logout();
               if (context.mounted) {
-                context.go('/login');
+                context.push('/login');
               }
             },
           )
@@ -44,6 +46,7 @@ class DashboardScreen extends StatelessWidget {
                 nombre: auth.nombre ?? '',
                 apellido: auth.apellido ?? '',
                 correo: auth.correo ?? '',
+                foto: auth.fotoUrl,
               ),
 
               const SizedBox(height: 20),
@@ -72,11 +75,13 @@ class _DashboardHeader extends StatelessWidget {
   final String nombre;
   final String apellido;
   final String correo;
+  final String? foto;
 
   const _DashboardHeader({
     required this.nombre,
     required this.apellido,
     required this.correo,
+    required this.foto,
   });
 
   @override
@@ -84,9 +89,13 @@ class _DashboardHeader extends StatelessWidget {
     return Row(
       children: [
 
-        const CircleAvatar(
+        CircleAvatar(
           radius: 28,
-          child: Icon(Icons.person),
+          backgroundColor: Colors.grey.shade200,
+          backgroundImage: ImageHelper.getImageProvider(foto),
+          child: ImageHelper.isValid(foto)
+              ? null
+              : const Icon(Icons.person, color: Colors.grey),
         ),
 
         const SizedBox(width: 12),
@@ -109,7 +118,7 @@ class _DashboardHeader extends StatelessWidget {
 
         IconButton(
           onPressed: () {
-            context.go('/perfil');
+            context.push('/perfil');
           },
           icon: const Icon(Icons.arrow_forward_ios, size: 18),
         )
@@ -211,19 +220,19 @@ class _QuickActions extends StatelessWidget {
             _ActionButton(
               icon: Icons.add,
               label: 'Agregar',
-              onTap: () => context.go('/vehiculo/create'),
+              onTap: () => context.push('/vehiculo/create'),
             ),
 
             _ActionButton(
               icon: Icons.directions_car,
               label: 'Vehículos',
-              onTap: () => context.go('/vehiculos'),
+              onTap: () => context.push('/vehiculos'),
             ),
 
             _ActionButton(
               icon: Icons.settings,
               label: 'Perfil',
-              onTap: () => context.go('/perfil'),
+              onTap: () => context.push('/perfil'),
             ),
           ],
         )
@@ -283,7 +292,7 @@ class _VehiclesPreview extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             TextButton(
-              onPressed: () => context.go('/vehiculos'),
+              onPressed: () => context.push('/vehiculos'),
               child: const Text('Ver todos'),
             )
           ],

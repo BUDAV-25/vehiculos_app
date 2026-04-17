@@ -26,7 +26,7 @@ class ProfileService {
   Future<ProfilePhotoResponse> uploadPhoto(String filePath) async {
     try {
       FormData formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(filePath),
+        'foto': await MultipartFile.fromFile(filePath),
       });
 
       final response = await _dio.post(

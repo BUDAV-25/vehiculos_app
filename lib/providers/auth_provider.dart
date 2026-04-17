@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/utils/token_manager.dart';
 import '../data/services/auth_service.dart';
 
+import '../data/services/profile_service.dart';
+
 class AuthProvider extends ChangeNotifier {
   final AuthService _service = AuthService();
+  final ProfileService _profileService = ProfileService();
 
   // =========================
   // ESTADO
@@ -20,28 +24,37 @@ class AuthProvider extends ChangeNotifier {
   String? refreshToken;
 
   Future<void> initAuth() async {
-  try {
-    isLoading = true;
-    notifyListeners();
+    try {
+      isLoading = true;
+      notifyListeners();
 
-    final tokens = await TokenManager.getTokens();
+      final tokens = await TokenManager.getTokens();
 
-    if (tokens == null) {
-      isAuthenticated = false;
-      return;
+      if (tokens == null) {
+        isAuthenticated = false;
+        return;
+      }
+
+      token = tokens['token'];
+      refreshToken = tokens['refreshToken'];
+
+      // 🔥 AQUÍ ESTÁ LA CLAVE
+      final user = await _profileService.getProfile();
+
+      nombre = user.nombre;
+      apellido = user.apellido;
+      correo = user.correo;
+      fotoUrl = user.fotoUrl;
+
+      isAuthenticated = true;
+
+    } catch (e) {
+      await logout();
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    token = tokens['token'];
-    refreshToken = tokens['refreshToken'];
-
-    isAuthenticated = true;
-  } catch (e) {
-    await logout();
-  } finally {
-    isLoading = false;
-    notifyListeners();
   }
-}
   // =========================
   // LOGIN INTERNO
   // =========================
@@ -178,6 +191,28 @@ class AuthProvider extends ChangeNotifier {
     await logout();
   }
 }
+
+  Future<String?> updatePhoto(String filePath) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      // 1. Subir foto
+      final response = await _profileService.uploadPhoto(filePath);
+
+      // 2. Actualizar solo la foto en memoria
+      fotoUrl = response.fotoUrl;
+
+      notifyListeners();
+      return null;
+
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   // =========================
   // CAMBIAR CONTRASEÑA

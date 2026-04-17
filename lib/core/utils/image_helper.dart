@@ -6,6 +6,17 @@ class ImageHelper {
   static String getImageUrl(String? path) {
     if (path == null || path.trim().isEmpty) return '';
 
+    path = path.trim();
+
+    if (path.startsWith('http')) {
+      return path;
+    }
+
+    // Evita doble "api/imagen"
+    if (path.contains('api/imagen')) {
+      return path;
+    }
+
     return "${ApiConstants.baseUrl}${ApiConstants.imagen}?path=$path";
   }
 

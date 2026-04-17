@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        context.go('/forgot');
+                        context.go('/olvidar');
                       },
                       child: const Text('¿Olvidaste tu contraseña?'),
                     ),
@@ -178,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text('¿No tienes cuenta?'),
                       TextButton(
                         onPressed: () {
-                          context.go('/register');
+                          context.go('/registro');
                         },
                         child: const Text('Regístrate'),
                       ),

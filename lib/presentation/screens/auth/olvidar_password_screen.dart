@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '/providers/auth_provider.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -50,7 +51,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
       );
 
-      context.pop(); // vuelve al perfil
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.push('/perfil');
+      } // vuelve al perfil
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -66,8 +71,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cambiar contraseña'),
+      appBar: CustomAppBar(
+        title: 'Cambiar contraseña',
       ),
       body: SafeArea(
         child: SingleChildScrollView(

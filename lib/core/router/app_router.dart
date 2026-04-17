@@ -11,6 +11,7 @@ import '../../presentation/screens/auth/olvidar_password_screen.dart';
 
 //Profile
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/edit_profile_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -20,13 +21,22 @@ class AppRouter {
     redirect: (context, state) async {
       final isLoggedIn = await TokenManager.hasToken();
 
-      final goingToLogin = state.matchedLocation == '/login';
+      final publicRoutes = [
+        '/login',
+        '/registro',
+        '/olvidar',
+        '/activar',
+      ];
 
-      if (!isLoggedIn) {
-        return goingToLogin ? null : '/login';
+      final isPublic = publicRoutes.contains(state.matchedLocation);
+
+      // 🔴 Si NO está logueado
+      if (!isLoggedIn && !isPublic) {
+        return '/login';
       }
 
-      if (isLoggedIn && goingToLogin) {
+      // 🟢 Si está logueado y quiere ir a login
+      if (isLoggedIn && state.matchedLocation == '/login') {
         return '/dashboard';
       }
 
@@ -56,12 +66,10 @@ class AppRouter {
       GoRoute(
         path: '/activar',
         builder: (context, state) {
-          final data = state.extra as Map<String, dynamic>?;
-
-          final token = data?['token'];
+          final token = state.extra as String?;
 
           if (token == null) {
-            return const LoginScreen(); // fallback seguro
+            return const LoginScreen();
           }
 
           return ActivarScreen(token: token);
@@ -82,8 +90,14 @@ class AppRouter {
       
       // PERFIL
       GoRoute(
-        path: '/profile',
+        path: '/perfil',
         builder: (context, state) => const PerfilScreen(),
+      ),
+
+      // EDITAR PERFIL
+      GoRoute(
+        path: '/perfil/editar',
+        builder: (context, state) => const EditProfileScreen(),
       ),
     ],
   );

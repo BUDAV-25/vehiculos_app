@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '/providers/auth_provider.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class ActivarScreen extends StatefulWidget {
   final String token;
@@ -43,7 +44,7 @@ class _ActivarScreenState extends State<ActivarScreen> {
       if (!mounted) return;
 
       // Ya hace login automáticamente
-      context.go('/dashboard');
+      context.push('/dashboard');
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,8 +61,8 @@ class _ActivarScreenState extends State<ActivarScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Activar Cuenta'),
+      appBar: CustomAppBar(
+        title: 'Activar Cuenta',
       ),
       body: SafeArea(
         child: Center(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '/providers/auth_provider.dart';
 import '/core/utils/image_helper.dart';
+import '../../widgets/custom_app_bar.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -13,15 +14,15 @@ class PerfilScreen extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Perfil'),
+      appBar: CustomAppBar(
+        title: 'Perfil',
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await context.read<AuthProvider>().logout();
               if (context.mounted) {
-                context.go('/login');
+                context.push('/login');
               }
             },
           )
@@ -87,7 +88,7 @@ class _ProfileHeader extends StatelessWidget {
               right: 0,
               child: InkWell(
                 onTap: () {
-                  context.go('/perfil/editar');
+                  context.push('/perfil/editar');
                 },
                 child: Container(
                   padding: const EdgeInsets.all(6),
@@ -135,19 +136,19 @@ class _ProfileOptions extends StatelessWidget {
         _OptionTile(
           icon: Icons.edit,
           title: 'Editar perfil',
-          onTap: () => context.go('/perfil/editar'),
+          onTap: () => context.push('/perfil/editar'),
         ),
 
         _OptionTile(
           icon: Icons.lock,
           title: 'Cambiar contraseña',
-          onTap: () => context.go('/change-password'),
+          onTap: () => context.push('/olvidar'),
         ),
 
         _OptionTile(
           icon: Icons.directions_car,
           title: 'Mis vehículos',
-          onTap: () => context.go('/vehiculos'),
+          onTap: () => context.push('/vehiculos'),
         ),
 
         const Divider(height: 30),
@@ -159,7 +160,7 @@ class _ProfileOptions extends StatelessWidget {
           onTap: () async {
             await context.read<AuthProvider>().logout();
             if (context.mounted) {
-              context.go('/login');
+              context.push('/login');
             }
           },
         ),
