@@ -25,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
                 context.push('/login');
               }
             },
-          )
+          ),
         ],
       ),
 
@@ -40,7 +40,6 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // HEADER
               _DashboardHeader(
                 nombre: auth.nombre ?? '',
@@ -88,7 +87,6 @@ class _DashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-
         CircleAvatar(
           radius: 28,
           backgroundColor: Colors.grey.shade200,
@@ -108,10 +106,7 @@ class _DashboardHeader extends StatelessWidget {
                 '$nombre $apellido',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              Text(
-                correo,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
+              Text(correo, style: TextStyle(color: Colors.grey[600])),
             ],
           ),
         ),
@@ -121,7 +116,7 @@ class _DashboardHeader extends StatelessWidget {
             context.push('/perfil');
           },
           icon: const Icon(Icons.arrow_forward_ios, size: 18),
-        )
+        ),
       ],
     );
   }
@@ -135,19 +130,19 @@ class _StatsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        Text(
-          'Resumen',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Resumen', style: Theme.of(context).textTheme.titleMedium),
 
         const SizedBox(height: 12),
 
         Row(
           children: const [
-            Expanded(child: _StatCard(title: 'Vehículos', value: '0')),
+            Expanded(
+              child: _StatCard(title: 'Vehículos', value: '0'),
+            ),
             SizedBox(width: 10),
-            Expanded(child: _StatCard(title: 'Activos', value: '0')),
+            Expanded(
+              child: _StatCard(title: 'Activos', value: '0'),
+            ),
           ],
         ),
 
@@ -155,9 +150,13 @@ class _StatsSection extends StatelessWidget {
 
         Row(
           children: const [
-            Expanded(child: _StatCard(title: 'Mantenimiento', value: '0')),
+            Expanded(
+              child: _StatCard(title: 'Mantenimiento', value: '0'),
+            ),
             SizedBox(width: 10),
-            Expanded(child: _StatCard(title: 'Alertas', value: '0')),
+            Expanded(
+              child: _StatCard(title: 'Alertas', value: '0'),
+            ),
           ],
         ),
       ],
@@ -169,10 +168,7 @@ class _StatCard extends StatelessWidget {
   final String title;
   final String value;
 
-  const _StatCard({
-    required this.title,
-    required this.value,
-  });
+  const _StatCard({required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +182,10 @@ class _StatCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 5),
           Text(title),
         ],
@@ -205,7 +202,6 @@ class _QuickActions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Text(
           'Acciones rápidas',
           style: Theme.of(context).textTheme.titleMedium,
@@ -214,9 +210,8 @@ class _QuickActions extends StatelessWidget {
         const SizedBox(height: 12),
 
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-
             _ActionButton(
               icon: Icons.add,
               label: 'Agregar',
@@ -235,7 +230,28 @@ class _QuickActions extends StatelessWidget {
               onTap: () => context.push('/perfil'),
             ),
           ],
-        )
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _ActionButton(
+              icon: Icons.newspaper,
+              label: 'Noticias',
+              onTap: () => context.push('/noticias'),
+            ),
+            _ActionButton(
+              icon: Icons.play_circle_outline,
+              label: 'Videos',
+              onTap: () => context.push('/videos'),
+            ),
+            _ActionButton(
+              icon: Icons.group,
+              label: 'Acerca De',
+              onTap: () => context.push('/acerca-de'),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -283,7 +299,6 @@ class _VehiclesPreview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -294,7 +309,7 @@ class _VehiclesPreview extends StatelessWidget {
             TextButton(
               onPressed: () => context.push('/vehiculos'),
               child: const Text('Ver todos'),
-            )
+            ),
           ],
         ),
 
@@ -308,7 +323,7 @@ class _VehiclesPreview extends StatelessWidget {
             color: Colors.grey.shade100,
           ),
           child: const Text('No hay vehículos aún'),
-        )
+        ),
       ],
     );
   }

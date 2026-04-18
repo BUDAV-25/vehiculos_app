@@ -13,6 +13,12 @@ import '../../presentation/screens/auth/olvidar_password_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/profile/edit_profile_screen.dart';
 
+// — tus imports nuevos (agregar después de los imports de perfil) —
+import '../../presentation/screens/noticias/noticias_screen.dart';
+import '../../presentation/screens/noticias/noticia_detalle_screen.dart';
+import '../../presentation/screens/videos/videos_screen.dart';
+import '../../presentation/screens/acerca_de/acerca_de_screen.dart';
+
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/',
@@ -26,6 +32,9 @@ class AppRouter {
         '/registro',
         '/olvidar',
         '/activar',
+        '/noticias',
+        '/videos',
+        '/acerca-de',
       ];
 
       final isPublic = publicRoutes.contains(state.matchedLocation);
@@ -45,16 +54,10 @@ class AppRouter {
 
     routes: [
       // SPLASH
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
 
       // LOGIN
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
 
       // REGISTRO
       GoRoute(
@@ -87,7 +90,7 @@ class AppRouter {
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
       ),
-      
+
       // PERFIL
       GoRoute(
         path: '/perfil',
@@ -98,6 +101,31 @@ class AppRouter {
       GoRoute(
         path: '/perfil/editar',
         builder: (context, state) => const EditProfileScreen(),
+      ),
+
+      GoRoute(
+        path: '/noticias',
+        builder: (context, state) => const NoticiasScreen(),
+      ),
+
+      GoRoute(
+        path: '/noticias/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id'] ?? '0');
+          return NoticiaDetalleScreen(id: id);
+        },
+      ),
+
+      // VIDEOS
+      GoRoute(
+        path: '/videos',
+        builder: (context, state) => const VideosScreen(),
+      ),
+
+      // ACERCA DE
+      GoRoute(
+        path: '/acerca-de',
+        builder: (context, state) => const AcercaDeScreen(),
       ),
     ],
   );
