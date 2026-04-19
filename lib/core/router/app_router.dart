@@ -18,6 +18,9 @@ import '../../presentation/screens/noticias/noticias_screen.dart';
 import '../../presentation/screens/noticias/noticia_detalle_screen.dart';
 import '../../presentation/screens/videos/videos_screen.dart';
 import '../../presentation/screens/acerca_de/acerca_de_screen.dart';
+import '../../presentation/screens/vehiculos/mis_vehiculos_screen.dart';
+import '../../presentation/screens/vehiculos/vehiculo_form_screen.dart';
+import '../../presentation/screens/vehiculos/vehiculo_detail_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -120,6 +123,32 @@ class AppRouter {
       GoRoute(
         path: '/videos',
         builder: (context, state) => const VideosScreen(),
+      ),
+
+      GoRoute(
+        path: '/vehiculos',
+        builder: (context, state) => const MisVehiculosScreen(),
+      ),
+
+      GoRoute(
+        path: '/vehiculo/create',
+        builder: (context, state) => const VehiculoFormScreen(),
+      ),
+
+      GoRoute(
+        path: '/vehiculo/editar',
+        builder: (context, state) {
+          final vehicle = state.extra;
+          return VehiculoFormScreen(vehicle: vehicle);
+        },
+      ),
+
+      GoRoute(
+        path: '/vehiculo/detalle/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return VehiculoDetailScreen(id: id);
+        },
       ),
 
       // ACERCA DE
