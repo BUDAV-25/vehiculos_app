@@ -32,10 +32,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
 
       if (pickedFile != null) {
-        // manejar imagen
+        setState(() {
+          selectedImage = File(pickedFile.path);
+        });
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     } finally {
       _isPicking = false;
     }
