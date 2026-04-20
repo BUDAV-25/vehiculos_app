@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../../data/services/mantenimiento_service.dart';
+import '../../../data/services/gastos_service.dart';
 
 class MantenimientoForm extends StatefulWidget {
   final int vehiculoId;
@@ -18,64 +16,19 @@ class MantenimientoForm extends StatefulWidget {
 }
 
 class _MantenimientoFormState extends State<MantenimientoForm> {
+  final service = GastosService();
   final _formKey = GlobalKey<FormState>();
-  final service = MantenimientoService();
 
-  String tipo = "Cambio de aceite";
+  String tipo = "";
   double costo = 0;
   String piezas = "";
-  String fecha = "";
-  List<XFile> fotos = [];
 
-  bool loading = false;
+  bool saving = false;
 
-  final picker = ImagePicker();
-
-  // 📸 TOMAR FOTO
-  Future<void> tomarFoto() async {
-    if (fotos.length >= 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Máximo 5 fotos")),
-      );
-      return;
-    }
-
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      setState(() {
-        fotos.add(image);
-      });
-    }
-  }
-
-  // 📅 SELECCIONAR FECHA
-  Future<void> seleccionarFecha() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      setState(() {
-        fecha = picked.toString().split(" ")[0];
-      });
-    }
-  }
-
-  // 💾 GUARDAR EN API
   Future<void> guardar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (fecha.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Seleccione una fecha")),
-      );
-      return;
-    }
-
-    setState(() => loading = true);
+    setState(() => saving = true);
 
     try {
       await service.crearMantenimiento(
@@ -84,12 +37,10 @@ class _MantenimientoFormState extends State<MantenimientoForm> {
         tipo: tipo,
         costo: costo,
         piezas: piezas,
-        fecha: fecha,
-        fotos: fotos,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Mantenimiento guardado")),
+        const SnackBar(content: Text("✅ Mantenimiento registrado")),
       );
 
       Navigator.pop(context);
@@ -98,133 +49,52 @@ class _MantenimientoFormState extends State<MantenimientoForm> {
         SnackBar(content: Text("❌ Error: $e")),
       );
     } finally {
-      setState(() => loading = false);
+      setState(() => saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Registrar Mantenimiento")),
+      appBar: AppBar(title: const Text("Mantenimiento")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // 🔽 TIPO
-                DropdownButtonFormField<String>(
-                  value: tipo,
-                  decoration: const InputDecoration(
-                    labelText: "Tipo de mantenimiento",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    "Cambio de aceite",
-                    "Frenos",
-                    "Motor",
-                    "Alineación",
-                    "Otros"
-                  ]
-                      .map((e) => DropdownMenuItem<String>(
-                            value: e,
-                            child: Text(e),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() => tipo = value!);
-                  },
-                ),
+          child: Column(
+            children: [
 
-                const SizedBox(height: 15),
+              TextFormField(
+                decoration: const InputDecoration(labelText: "Tipo"),
+                onChanged: (v) => tipo = v,
+                validator: (v) => v!.isEmpty ? "Ingrese tipo" : null,
+              ),
 
-                // 💰 COSTO
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Costo",
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) =>
-                      value!.isEmpty ? "Ingrese costo" : null,
-                  onChanged: (value) =>
-                      costo = double.tryParse(value) ?? 0,
-                ),
+              const SizedBox(height: 10),
 
-                const SizedBox(height: 15),
+              TextFormField(
+                decoration: const InputDecoration(labelText: "Costo"),
+                keyboardType: TextInputType.number,
+                onChanged: (v) => costo = double.tryParse(v) ?? 0,
+                validator: (v) => v!.isEmpty ? "Ingrese costo" : null,
+              ),
 
-                // 🔧 PIEZAS
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Piezas (opcional)",
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) => piezas = value,
-                ),
+              const SizedBox(height: 10),
 
-                const SizedBox(height: 15),
+              TextFormField(
+                decoration: const InputDecoration(labelText: "Piezas"),
+                onChanged: (v) => piezas = v,
+              ),
 
-                // 📅 FECHA
-                ElevatedButton(
-                  onPressed: seleccionarFecha,
-                  child: Text(
-                    fecha.isEmpty ? "Seleccionar fecha" : fecha,
-                  ),
-                ),
+              const SizedBox(height: 20),
 
-                const SizedBox(height: 15),
-
-                // 📸 FOTO
-                ElevatedButton(
-                  onPressed: tomarFoto,
-                  child: const Text("Agregar Foto"),
-                ),
-
-                const SizedBox(height: 10),
-
-                Wrap(
-                  spacing: 10,
-                  children: fotos
-                      .map((f) => Stack(
-                            children: [
-                              Image.file(
-                                File(f.path),
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
-                              Positioned(
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      fotos.remove(f);
-                                    });
-                                  },
-                                  child: const Icon(Icons.close,
-                                      color: Colors.red),
-                                ),
-                              )
-                            ],
-                          ))
-                      .toList(),
-                ),
-
-                const SizedBox(height: 20),
-
-                // 💾 BOTÓN GUARDAR
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: loading ? null : guardar,
-                    child: loading
-                        ? const CircularProgressIndicator()
-                        : const Text("Guardar"),
-                  ),
-                ),
-              ],
-            ),
+              ElevatedButton(
+                onPressed: saving ? null : guardar,
+                child: saving
+                    ? const CircularProgressIndicator()
+                    : const Text("Guardar"),
+              )
+            ],
           ),
         ),
       ),

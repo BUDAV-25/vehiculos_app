@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../data/services/combustible_service.dart';
+import '../../../data/services/gastos_service.dart';
 
 class CombustibleForm extends StatefulWidget {
   final int vehiculoId;
@@ -16,33 +16,31 @@ class CombustibleForm extends StatefulWidget {
 }
 
 class _CombustibleFormState extends State<CombustibleForm> {
+  final service = GastosService();
   final _formKey = GlobalKey<FormState>();
-  final service = CombustibleService();
 
-  String tipo = "combustible";
-  String unidad = "galones";
   double cantidad = 0;
+  String unidad = "galones";
   double monto = 0;
 
-  bool loading = false;
+  bool saving = false;
 
   Future<void> guardar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => loading = true);
+    setState(() => saving = true);
 
     try {
-      await service.crearRegistro(
+      await service.crearCombustible(
         token: widget.token,
         vehiculoId: widget.vehiculoId,
-        tipo: tipo,
         cantidad: cantidad,
         unidad: unidad,
         monto: monto,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Guardado")),
+        const SnackBar(content: Text("✅ Combustible registrado")),
       );
 
       Navigator.pop(context);
@@ -51,92 +49,52 @@ class _CombustibleFormState extends State<CombustibleForm> {
         SnackBar(content: Text("❌ Error: $e")),
       );
     } finally {
-      setState(() => loading = false);
+      setState(() => saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Combustible / Aceite")),
+      appBar: AppBar(title: const Text("Combustible")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              // 🔽 TIPO
-              DropdownButtonFormField<String>(
-                value: tipo,
-                decoration: const InputDecoration(
-                  labelText: "Tipo",
-                  border: OutlineInputBorder(),
-                ),
-                items: ["combustible", "aceite"]
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
-                    .toList(),
-                onChanged: (value) => setState(() => tipo = value!),
-              ),
-
-              const SizedBox(height: 15),
-
-              // 🔽 UNIDAD
-              DropdownButtonFormField<String>(
-                value: unidad,
-                decoration: const InputDecoration(
-                  labelText: "Unidad",
-                  border: OutlineInputBorder(),
-                ),
-                items: ["galones", "litros", "qt"]
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
-                    .toList(),
-                onChanged: (value) => setState(() => unidad = value!),
-              ),
-
-              const SizedBox(height: 15),
 
               TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Cantidad",
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: "Cantidad"),
                 keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value!.isEmpty ? "Ingrese cantidad" : null,
-                onChanged: (value) =>
-                    cantidad = double.tryParse(value) ?? 0,
+                onChanged: (v) => cantidad = double.tryParse(v) ?? 0,
+                validator: (v) => v!.isEmpty ? "Ingrese cantidad" : null,
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
               TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Monto (RD\$)",
-                  border: OutlineInputBorder(),
-                ),
+                initialValue: "galones",
+                decoration: const InputDecoration(labelText: "Unidad"),
+                onChanged: (v) => unidad = v,
+              ),
+
+              const SizedBox(height: 10),
+
+              TextFormField(
+                decoration: const InputDecoration(labelText: "Monto"),
                 keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value!.isEmpty ? "Ingrese monto" : null,
-                onChanged: (value) =>
-                    monto = double.tryParse(value) ?? 0,
+                onChanged: (v) => monto = double.tryParse(v) ?? 0,
+                validator: (v) => v!.isEmpty ? "Ingrese monto" : null,
               ),
 
               const SizedBox(height: 20),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: loading ? null : guardar,
-                  child: loading
-                      ? const CircularProgressIndicator()
-                      : const Text("Guardar"),
-                ),
+              ElevatedButton(
+                onPressed: saving ? null : guardar,
+                child: saving
+                    ? const CircularProgressIndicator()
+                    : const Text("Guardar"),
               )
             ],
           ),
