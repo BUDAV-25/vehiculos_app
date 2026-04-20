@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    context.go('/dashboard');
+    context.push('/dashboard');
   }
 
   @override
@@ -56,7 +56,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      body: SafeArea(
+    appBar: AppBar(
+      title: const Text('Login'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.pop(),
+      ),
+    ),
+    body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),

@@ -29,11 +29,14 @@ import '../../presentation/screens/foro/crear_post_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/dashboard',
     debugLogDiagnostics: true,
 
     redirect: (context, state) async {
       final isLoggedIn = await TokenManager.hasToken();
+
+      print('ROUTE: ${state.matchedLocation}');
+      print('LOGGED: $isLoggedIn');
 
       final publicRoutes = [
         '/login',
@@ -43,17 +46,21 @@ class AppRouter {
         '/noticias',
         '/videos',
         '/acerca-de',
+        '/dashboard', // 👈 IMPORTANTE
       ];
 
-      final isPublic = publicRoutes.contains(state.matchedLocation);
+      final isPublic = publicRoutes.any(
+        (route) => state.matchedLocation.startsWith(route),
+      );
 
       if (!isLoggedIn && !isPublic) {
         return '/login';
       }
 
-      if (isLoggedIn && state.matchedLocation == '/login') {
-        return '/dashboard';
-      }
+      // 🟢 Si está logueado y quiere ir a login
+      //if (isLoggedIn && state.matchedLocation == '/login') {
+      //  return '/dashboard';
+      //}
 
       return null;
     },

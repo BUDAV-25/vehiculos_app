@@ -1,327 +1,327 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
-import '/core/utils/image_helper.dart';
+import 'package:provider/provider.dart';
+import 'package:vehiculos_app/core/utils/token_manager.dart';
 import '/providers/auth_provider.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final PageController _controller = PageController();
+  int _currentPage = 0;
+  Timer? _timer;
+
+  final List<Map<String, String>> slides = [
+    {
+      "image": "assets/images/vehiculos/mazda.jpg",
+      "text": "La seguridad comienza con un buen mantenimiento 🚗"
+    },
+    {
+      "image": "assets/images/vehiculos/ford-ranger-raptor.png",
+      "text": "Potencia y control en cada camino 💪"
+    },
+    {
+      "image": "assets/images/vehiculos/Honda_CR-V.jpg",
+      "text": "Viaja cómodo, viaja seguro 🛣️"
+    },
+    {
+      "image": "assets/images/vehiculos/jetour.png",
+      "text": "Tecnología que impulsa tu experiencia ⚡"
+    },
+    {
+      "image": "assets/images/vehiculos/mazda_demio.jpg",
+      "text": "Pequeño en tamaño, grande en eficiencia ⛽"
+    },
+    {
+      "image": "assets/images/vehiculos/jetour-dashing.jpg",
+      "text": "Diseño moderno para conductores modernos 🔥"
+    },
+    {
+      "image": "assets/images/vehiculos/mercedes-benz.jpg",
+      "text": "Elegancia y rendimiento en cada detalle ✨"
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    TokenManager.clearTokens(); // LIMPIA TOKENS AL INICIAR (PRUEBAS)
+
+    _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (_controller.hasClients) {
+        _currentPage = (_currentPage + 1) % slides.length;
+        _controller.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final isLogged = auth.isAuthenticated; // 🔥 CLAVE
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        elevation: 0,
+        title: const Text('Inicio'),
+        centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                context.push('/login');
-              }
+          if (isLogged)
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await context.read<AuthProvider>().logout();
+              },
+            )
+        ],
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSlider(),
+            const SizedBox(height: 16),
+            _buildMotivation(),
+            const SizedBox(height: 24),
+
+            /// 🔥 CONTENIDO DINÁMICO
+            isLogged
+                ? _buildLoggedContent(context, auth)
+                : _buildGuestContent(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ================= SLIDER =================
+  Widget _buildSlider() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: slides.length,
+            onPageChanged: (index) {
+              setState(() => _currentPage = index);
+            },
+            itemBuilder: (_, index) {
+              return Container(
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  image: DecorationImage(
+                    image: AssetImage(slides[index]["image"]!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withOpacity(0.6),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    slides[index]["text"]!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
             },
           ),
-        ],
-      ),
-
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🔥 HEADER
-              _DashboardHeader(
-                nombre: auth.nombre ?? '',
-                apellido: auth.apellido ?? '',
-                correo: auth.correo ?? '',
-                foto: auth.fotoUrl,
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(slides.length, (index) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: _currentPage == index ? 16 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color:
+                    _currentPage == index ? Colors.blue : Colors.grey,
+                borderRadius: BorderRadius.circular(10),
               ),
-
-              const SizedBox(height: 20),
-
-              // 🔥 STATS
-              const _StatsSection(),
-
-              const SizedBox(height: 20),
-
-              // 🔥 ACCIONES
-              const _QuickActions(),
-
-              const SizedBox(height: 20),
-
-              // 🔥 VEHÍCULOS
-              const _VehiclesPreview(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DashboardHeader extends StatelessWidget {
-  final String nombre;
-  final String apellido;
-  final String correo;
-  final String? foto;
-
-  const _DashboardHeader({
-    required this.nombre,
-    required this.apellido,
-    required this.correo,
-    required this.foto,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: Colors.grey.shade200,
-          backgroundImage: ImageHelper.getImageProvider(foto),
-          child: ImageHelper.isValid(foto)
-              ? null
-              : const Icon(Icons.person, color: Colors.grey),
-        ),
-
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$nombre $apellido',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(correo, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-        ),
-
-        IconButton(
-          onPressed: () {
-            context.push('/perfil');
-          },
-          icon: const Icon(Icons.arrow_forward_ios, size: 18),
+            );
+          }),
         ),
       ],
     );
   }
-}
 
-class _StatsSection extends StatelessWidget {
-  const _StatsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Resumen', style: Theme.of(context).textTheme.titleMedium),
-
-        const SizedBox(height: 12),
-
-        Row(
-          children: const [
-            Expanded(child: _StatCard(title: 'Vehículos', value: '0')),
-            SizedBox(width: 10),
-            Expanded(child: _StatCard(title: 'Activos', value: '0')),
-          ],
-        ),
-
-        const SizedBox(height: 10),
-
-        Row(
-          children: const [
-            Expanded(child: _StatCard(title: 'Mantenimiento', value: '0')),
-            SizedBox(width: 10),
-            Expanded(child: _StatCard(title: 'Alertas', value: '0')),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const _StatCard({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
+  /// ================= MENSAJE =================
+  Widget _buildMotivation() {
     return Container(
-      height: 90,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.blue.shade50,
+        gradient: const LinearGradient(
+          colors: [Colors.blue, Colors.blueAccent],
+        ),
       ),
+      child: const Text(
+        'Conduce seguro, mantén tu vehículo y evita problemas futuros.',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  /// ================= GUEST =================
+  Widget _buildGuestContent(BuildContext context) {
+    return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            value,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          const SizedBox(height: 40),
+          const Icon(Icons.lock_outline, size: 80, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
+            'Inicia sesión para acceder a todas las funciones',
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 5),
-          Text(title),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => context.push('/login'),
+            child: const Text('Iniciar sesión'),
+          ),
         ],
       ),
     );
   }
-}
 
-class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-
-  @override
-  Widget build(BuildContext context) {
+  /// ================= LOGGED =================
+  Widget _buildLoggedContent(BuildContext context, AuthProvider auth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Acciones rápidas',
-          style: Theme.of(context).textTheme.titleMedium,
+          'Hola, ${auth.nombre ?? ''} 👋',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
 
-        // 🔥 FILA 1
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _ActionButton(
-              icon: Icons.add,
-              label: 'Agregar',
-              onTap: () => context.push('/vehiculo/create'),
-            ),
+        _buildQuickMenu(context),
 
-            _ActionButton(
-              icon: Icons.directions_car,
-              label: 'Vehículos',
-              onTap: () => context.push('/vehiculos'),
-            ),
+        const SizedBox(height: 24),
 
-            _ActionButton(
-              icon: Icons.settings,
-              label: 'Perfil',
-              onTap: () => context.push('/perfil'),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        // 🔥 FILA 2 (AQUÍ ESTÁ EL FORO)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _ActionButton(
-              icon: Icons.newspaper,
-              label: 'Noticias',
-              onTap: () => context.push('/noticias'),
-            ),
-
-            _ActionButton(
-              icon: Icons.play_circle_outline,
-              label: 'Videos',
-              onTap: () => context.push('/videos'),
-            ),
-
-            // 🔥 NUEVO BOTÓN FORO
-            _ActionButton(
-              icon: Icons.forum,
-              label: 'Foro',
-              onTap: () => context.push('/foro'),
-            ),
-          ],
-        ),
+        _buildCTA(context),
       ],
     );
   }
-}
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+  /// ================= MENU =================
+  Widget _buildQuickMenu(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
       children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Ink(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: Colors.white),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(label),
+        _menuItem(Icons.directions_car, 'Vehículos',
+            () => context.push('/vehiculos')),
+        _menuItem(Icons.newspaper, 'Noticias',
+            () => context.push('/noticias')),
+        _menuItem(Icons.play_circle_outline, 'Videos',
+            () => context.push('/videos')),
+        _menuItem(Icons.forum, 'Foro',
+            () => context.push('/foro')),
+        _menuItem(Icons.info, 'Acerca',
+            () => context.push('/acerca-de')),
+        _menuItem(Icons.person, 'Perfil',
+            () => context.push('/perfil')),
       ],
     );
   }
-}
 
-class _VehiclesPreview extends StatelessWidget {
-  const _VehiclesPreview();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Tus vehículos',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            TextButton(
-              onPressed: () => context.push('/vehiculos'),
-              child: const Text('Ver todos'),
-            ),
+  Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            )
           ],
         ),
-
-        const SizedBox(height: 10),
-
-        Container(
-          height: 120,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.grey.shade100,
-          ),
-          child: const Text('No hay vehículos aún'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.blue),
+            const SizedBox(height: 6),
+            Text(label, style: const TextStyle(fontSize: 12)),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  /// ================= CTA =================
+  Widget _buildCTA(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.black,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Descubre vehículos increíbles',
+            style: TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () => context.push('/catalogo'),
+            child: const Text('Ir al catálogo'),
+          )
+        ],
+      ),
     );
   }
 }

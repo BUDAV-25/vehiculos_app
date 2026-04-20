@@ -265,6 +265,8 @@ class AuthProvider extends ChangeNotifier {
 
     await TokenManager.clearTokens();
 
+    isAuthenticated = false;
+    
     notifyListeners();
   }
 }
