@@ -142,7 +142,7 @@ class _ProfileOptions extends StatelessWidget {
         _OptionTile(
           icon: Icons.lock,
           title: 'Cambiar contraseña',
-          onTap: () => context.push('/olvidar'),
+          onTap: () => context.push('/change-password'),
         ),
 
         _OptionTile(

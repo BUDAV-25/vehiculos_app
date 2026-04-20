@@ -7,6 +7,7 @@ import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/dashboard/dashboard_screen.dart';
 import '../../presentation/screens/auth/registro_screen.dart';
 import '../../presentation/screens/auth/activar_screen.dart';
+import '../../presentation/screens/auth/change_password_screen.dart';
 import '../../presentation/screens/auth/olvidar_password_screen.dart';
 
 //Profile
@@ -92,10 +93,16 @@ class AppRouter {
         },
       ),
 
+      // Cambiar PASSWORD
+      GoRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+
       // OLVIDAR PASSWORD
       GoRoute(
-        path: '/olvidar',
-        builder: (context, state) => const ChangePasswordScreen(),
+        path: '/forgot-password',
+        builder: (context, state) => const OlvidarPasswordScreen(),
       ),
 
       // DASHBOARD

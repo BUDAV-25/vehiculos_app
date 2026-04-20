@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 import '../core/utils/token_manager.dart';
 import '../data/services/auth_service.dart';
 
@@ -238,17 +238,28 @@ class AuthProvider extends ChangeNotifier {
   // =========================
   // OLVIDAR CONTRASEÑA
   // =========================
-  Future<void> forgotPassword(String matricula) async {
-    try {
-      isLoading = true;
-      notifyListeners();
+  Future<Map<String, dynamic>> forgotPassword(String matricula) async {
+  try {
+    isLoading = true;
+    notifyListeners();
 
-      await _service.forgot(matricula);
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+    final response = await _service.forgot(matricula);
+
+    return {
+      'success': true,
+      'data': response,
+    };
+
+  } catch (e) {
+    return {
+      'success': false,
+      'message': e.toString(),
+    };
+  } finally {
+    isLoading = false;
+    notifyListeners();
   }
+}
 
   // =========================
   // LOGOUT

@@ -3,63 +3,50 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '/providers/auth_provider.dart';
-import '../../widgets/custom_app_bar.dart';
 
-class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({super.key});
+class OlvidarPasswordScreen extends StatefulWidget {
+  const OlvidarPasswordScreen({super.key});
 
   @override
-  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  State<OlvidarPasswordScreen> createState() =>
+      _OlvidarPasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+class _OlvidarPasswordScreenState extends State<OlvidarPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _matriculaController = TextEditingController();
 
-  final TextEditingController actualCtrl = TextEditingController();
-  final TextEditingController nuevaCtrl = TextEditingController();
-  final TextEditingController confirmCtrl = TextEditingController();
+  bool _isLoading = false;
 
-  bool obscureActual = true;
-  bool obscureNueva = true;
-  bool obscureConfirm = true;
-
-  @override
-  void dispose() {
-    actualCtrl.dispose();
-    nuevaCtrl.dispose();
-    confirmCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _changePassword() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
 
     final authProvider = context.read<AuthProvider>();
 
-    try {
-      await authProvider.changePassword(
-        actual: actualCtrl.text.trim(),
-        nueva: nuevaCtrl.text.trim(),
-      );
+    final result = await authProvider.forgotPassword(
+      _matriculaController.text.trim(),
+    );
 
-      if (!mounted) return;
+    setState(() => _isLoading = false);
 
+    if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Contraseña actualizada correctamente'),
+        SnackBar(
+          content: Text(
+            "Clave temporal enviada. Revisa tu correo.",
+          ),
           backgroundColor: Colors.green,
         ),
       );
 
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.push('/perfil');
-      } // vuelve al perfil
-    } catch (e) {
+      // Redirigir al login
+      context.go('/login');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text(result['message'] ?? "Error inesperado"),
           backgroundColor: Colors.red,
         ),
       );
@@ -67,162 +54,80 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   @override
+  void dispose() {
+    _matriculaController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Cambiar contraseña',
+      appBar: AppBar(
+        title: const Text("Recuperar contraseña"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
 
-                const Icon(
-                  Icons.lock,
-                  size: 70,
-                  color: Colors.orange,
+              const Text(
+                "¿Olvidaste tu contraseña?",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-                Text(
-                  'Actualizar contraseña',
-                  style: Theme.of(context).textTheme.titleLarge,
+              const Text(
+                "Ingresa tu matrícula y te enviaremos una clave temporal a tu correo.",
+                style: TextStyle(color: Colors.grey),
+              ),
+
+              const SizedBox(height: 30),
+
+              TextFormField(
+                controller: _matriculaController,
+                decoration: const InputDecoration(
+                  labelText: "Matrícula",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.badge),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "La matrícula es obligatoria";
+                  }
+                  return null;
+                },
+              ),
 
-                const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
-                // ACTUAL
-                TextFormField(
-                  controller: actualCtrl,
-                  obscureText: obscureActual,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña actual',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureActual
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscureActual = !obscureActual;
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese su contraseña actual';
-                    }
-                    return null;
-                  },
-                ),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submit,
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text("Enviar clave temporal"),
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-                // NUEVA
-                TextFormField(
-                  controller: nuevaCtrl,
-                  obscureText: obscureNueva,
-                  decoration: InputDecoration(
-                    labelText: 'Nueva contraseña',
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureNueva
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscureNueva = !obscureNueva;
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingrese una nueva contraseña';
-                    }
-                    if (value.length < 6) {
-                      return 'Mínimo 6 caracteres';
-                    }
-                    if (value == actualCtrl.text) {
-                      return 'Debe ser diferente a la actual';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // CONFIRMAR
-                TextFormField(
-                  controller: confirmCtrl,
-                  obscureText: obscureConfirm,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar contraseña',
-                    prefixIcon: const Icon(Icons.lock_reset),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureConfirm
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscureConfirm = !obscureConfirm;
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Confirme la contraseña';
-                    }
-                    if (value != nuevaCtrl.text) {
-                      return 'Las contraseñas no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 30),
-
-                // BOTÓN
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _changePassword,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: auth.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Actualizar contraseña'),
-                  ),
-                ),
-              ],
-            ),
+              TextButton(
+                onPressed: () => context.go('/login'),
+                child: const Text("Volver al login"),
+              ),
+            ],
           ),
         ),
       ),

@@ -70,7 +70,7 @@ class AuthService {
   }
 
   // OLVIDAR
-  Future<void> forgot(String matricula) async {
+  Future<Map<String, dynamic>> forgot(String matricula) async {
     final res = await _dio.post(
       ApiConstants.olvidar,
       data: {
@@ -82,6 +82,8 @@ class AuthService {
     if (!res.data['success']) {
       throw Exception(res.data['message']);
     }
+
+    return res.data; // 🔥 IMPORTANTE
   }
 
   // REFRESH TOKEN
