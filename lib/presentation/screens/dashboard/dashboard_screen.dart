@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '/core/utils/image_helper.dart';
-//import '../../widgets/custom_app_bar.dart';
 import '/providers/auth_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -31,7 +30,6 @@ class DashboardScreen extends StatelessWidget {
 
       body: RefreshIndicator(
         onRefresh: () async {
-          // Aquí luego cargarás vehículos o stats reales
           await Future.delayed(const Duration(seconds: 1));
         },
         child: SingleChildScrollView(
@@ -40,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // HEADER
+              // 🔥 HEADER
               _DashboardHeader(
                 nombre: auth.nombre ?? '',
                 apellido: auth.apellido ?? '',
@@ -50,17 +48,17 @@ class DashboardScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // STATS
+              // 🔥 STATS
               const _StatsSection(),
 
               const SizedBox(height: 20),
 
-              // QUICK ACTIONS
+              // 🔥 ACCIONES
               const _QuickActions(),
 
               const SizedBox(height: 20),
 
-              // VEHICLES PREVIEW
+              // 🔥 VEHÍCULOS
               const _VehiclesPreview(),
             ],
           ),
@@ -136,13 +134,9 @@ class _StatsSection extends StatelessWidget {
 
         Row(
           children: const [
-            Expanded(
-              child: _StatCard(title: 'Vehículos', value: '0'),
-            ),
+            Expanded(child: _StatCard(title: 'Vehículos', value: '0')),
             SizedBox(width: 10),
-            Expanded(
-              child: _StatCard(title: 'Activos', value: '0'),
-            ),
+            Expanded(child: _StatCard(title: 'Activos', value: '0')),
           ],
         ),
 
@@ -150,13 +144,9 @@ class _StatsSection extends StatelessWidget {
 
         Row(
           children: const [
-            Expanded(
-              child: _StatCard(title: 'Mantenimiento', value: '0'),
-            ),
+            Expanded(child: _StatCard(title: 'Mantenimiento', value: '0')),
             SizedBox(width: 10),
-            Expanded(
-              child: _StatCard(title: 'Alertas', value: '0'),
-            ),
+            Expanded(child: _StatCard(title: 'Alertas', value: '0')),
           ],
         ),
       ],
@@ -209,6 +199,7 @@ class _QuickActions extends StatelessWidget {
 
         const SizedBox(height: 12),
 
+        // 🔥 FILA 1
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -231,7 +222,10 @@ class _QuickActions extends StatelessWidget {
             ),
           ],
         ),
+
         const SizedBox(height: 12),
+
+        // 🔥 FILA 2 (AQUÍ ESTÁ EL FORO)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -240,15 +234,18 @@ class _QuickActions extends StatelessWidget {
               label: 'Noticias',
               onTap: () => context.push('/noticias'),
             ),
+
             _ActionButton(
               icon: Icons.play_circle_outline,
               label: 'Videos',
               onTap: () => context.push('/videos'),
             ),
+
+            // 🔥 NUEVO BOTÓN FORO
             _ActionButton(
-              icon: Icons.group,
-              label: 'Acerca De',
-              onTap: () => context.push('/acerca-de'),
+              icon: Icons.forum,
+              label: 'Foro',
+              onTap: () => context.push('/foro'),
             ),
           ],
         ),

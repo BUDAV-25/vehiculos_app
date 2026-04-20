@@ -22,6 +22,11 @@ import '../../presentation/screens/vehiculos/mis_vehiculos_screen.dart';
 import '../../presentation/screens/vehiculos/vehiculo_form_screen.dart';
 import '../../presentation/screens/vehiculos/vehiculo_detail_screen.dart';
 
+// Foro
+import '../../presentation/screens/foro/foro_screen.dart';
+import '../../presentation/screens/foro/tema_detalle_screen.dart';
+import '../../presentation/screens/foro/crear_post_screen.dart';
+
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/',
@@ -42,12 +47,10 @@ class AppRouter {
 
       final isPublic = publicRoutes.contains(state.matchedLocation);
 
-      // 🔴 Si NO está logueado
       if (!isLoggedIn && !isPublic) {
         return '/login';
       }
 
-      // 🟢 Si está logueado y quiere ir a login
       if (isLoggedIn && state.matchedLocation == '/login') {
         return '/dashboard';
       }
@@ -148,6 +151,19 @@ class AppRouter {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return VehiculoDetailScreen(id: id);
+        },
+      ),
+
+      // FORO
+      GoRoute(path: '/foro', builder: (_, _) => const ForoScreen()),
+
+      GoRoute(path: '/foro/crear', builder: (_, _) => const CrearPostScreen()),
+
+      GoRoute(
+        path: '/foro/detalle/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return TemaDetalleScreen(temaId: id);
         },
       ),
 
