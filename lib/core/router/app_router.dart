@@ -28,6 +28,9 @@ import '../../presentation/screens/foro/foro_screen.dart';
 import '../../presentation/screens/foro/tema_detalle_screen.dart';
 import '../../presentation/screens/foro/crear_post_screen.dart';
 
+import '../../presentation/screens/catalogo/catalog_detail_screen.dart';
+import '../../presentation/screens/catalogo/catalog_screen.dart';
+
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/dashboard',
@@ -185,6 +188,19 @@ class AppRouter {
       GoRoute(
         path: '/acerca-de',
         builder: (context, state) => const AcercaDeScreen(),
+      ),
+
+      GoRoute(
+        path: '/catalogo',
+        builder: (context, state) => const CatalogScreen(),
+      ),
+
+      GoRoute(
+        path: '/catalogo/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id'] ?? '0');
+          return CatalogDetailScreen(id: id);
+        },
       ),
     ],
   );
