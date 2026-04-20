@@ -1,12 +1,10 @@
 import 'package:dio/dio.dart';
+import '../../core/utils/dio_client.dart';
 import 'package:vehiculos_app/data/models/catalog/catalog_detail_model.dart';
 import 'package:vehiculos_app/data/models/catalog/catalog_list_response.dart';
 
-
 class CatalogService {
-  final Dio dio;
-
-  CatalogService(this.dio);
+  final Dio _dio = DioClient.instance.client;
 
   Future<CatalogListResponse> getCatalog({
     String? marca,
@@ -17,7 +15,7 @@ class CatalogService {
     int page = 1,
     int limit = 20,
   }) async {
-    final response = await dio.get(
+    final response = await _dio.get(
       '/catalogo',
       queryParameters: {
         if (marca != null && marca.trim().isNotEmpty) 'marca': marca.trim(),
@@ -34,7 +32,7 @@ class CatalogService {
   }
 
   Future<CatalogDetailModel> getCatalogDetail(int id) async {
-    final response = await dio.get(
+    final response = await _dio.get(
       '/catalogo/detalle',
       queryParameters: {'id': id},
     );

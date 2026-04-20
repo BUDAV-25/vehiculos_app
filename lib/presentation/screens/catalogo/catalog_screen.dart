@@ -13,12 +13,12 @@ class CatalogScreen extends StatefulWidget {
 
 class _CatalogScreenState extends State<CatalogScreen> {
   @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      context.read<CatalogProvider>().loadCatalog();
-    });
-  }
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    context.read<CatalogProvider>().loadCatalog();
+  });
+}
 
   @override
   Widget build(BuildContext context) {
